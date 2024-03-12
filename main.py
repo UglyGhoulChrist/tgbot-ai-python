@@ -1,3 +1,4 @@
+import re
 from dotenv import load_dotenv
 import os
 import telebot
@@ -10,18 +11,64 @@ TOKEN = os.getenv('SECRET_TOKEN')
 
 bot = telebot.TeleBot(TOKEN)
 
-@bot.message_handler(commands=['start', 'help'])
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Привет! Я твой телеграм бот. Чем могу помочь?")
+    bot.reply_to(message, "Привет! Я простой бот, созданный в целях обучения. Напиши /help, чтобы получить список команд.")
 
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    text = message.text.lower()
-    if "привет" in text:
-        bot.reply_to(message, "Привет, рад тебя видеть!")
-    elif "как дела?" in text:
-        bot.reply_to(message, "Всё отлично, спасибо!")
-    else:
-        bot.reply_to(message, f"Пока я повторюшка: {text}" )
+@bot.message_handler(commands=['help'])
+def send_help(message):
+    response_text = (
+        "/start - начать общение с ботом\n"
+        "/help - получить список доступных команд\n"
+        "/reverse - перевернуть текст после команды\n"
+        "/upper - преобразовывать текст в верхний регистр\n"
+        "/cut - удаляет гласные буквы\n"
+        "Это всё, что я умею на данный момент!"
+    )
+    bot.reply_to(message, response_text)
 
+@bot.message_handler(commands=['reverse'])
+def reverse_text(message):
+    try:
+        # Извлекаем аргументы после команды /reverse (если они есть)
+        text_to_reverse = message.text.split(' ', 1)[1]
+        # Переворачиваем текст
+        reversed_text = text_to_reverse[::-1]
+        # Отправляем результат обратно пользователю
+        bot.reply_to(message, reversed_text)
+    except IndexError:
+        # Если аргументов нет, отправляем сообщение об ошибке
+         bot.reply_to(message, "Пожалуйста, отправьте текст после команды /reverse.")
+
+@bot.message_handler(commands=['upper'])
+def upper_text(message):
+    try:
+        # Извлекаем аргументы после команды /upper (если они есть)
+        text_to_upper = message.text.split(' ', 1)[1]
+        # Преобразуем текст
+        upper_text = text_to_upper.upper()
+        # Отправляем результат обратно пользователю
+        bot.reply_to(message, upper_text)
+    except IndexError:
+        # Если аргументов нет, отправляем сообщение об ошибке
+        bot.reply_to(message, "Пожалуйста, отправьте текст после команды /upper.")
+
+@bot.message_handler(commands=['cut'])
+def cut_text(message):
+    try:
+        # Извлекаем аргументы после команды /cut (если они есть)
+        text_to_cut = message.text.split(' ', 1)[1]
+
+        # Регулярное выражение для нахождения гласных
+        vowels_pattern = re.compile(r'[aeiouAEIOUаеёиоуыэюяАЕЁИОУЫЭЮЯ]', re.IGNORECASE)
+        # Заменяем все найденные гласные на пустую строку
+        result_text = vowels_pattern.sub('', text_to_cut)
+
+        # Отправляем результат обратно пользователю
+        bot.reply_to(message, result_text)
+    except IndexError:
+        # Если аргументов нет, отправляем сообщение об ошибке
+        bot.reply_to(message, "Пожалуйста, отправьте текст после команды /cut.")
+
+# Запускаем бота, чтобы он постоянно ожидал входящие сообщения
 bot.polling(none_stop=True)
