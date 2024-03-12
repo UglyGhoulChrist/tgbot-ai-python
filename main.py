@@ -23,6 +23,7 @@ def send_help(message):
         "/reverse - перевернуть текст после команды\n"
         "/upper - преобразовывать текст в верхний регистр\n"
         "/cut - удаляет гласные буквы\n"
+        "/factorial - вычисляет факториал введённого числа\n"
         "Это всё, что я умею на данный момент!"
     )
     bot.reply_to(message, response_text)
@@ -69,6 +70,30 @@ def cut_text(message):
     except IndexError:
         # Если аргументов нет, отправляем сообщение об ошибке
         bot.reply_to(message, "Пожалуйста, отправьте текст после команды /cut.")
+
+@bot.message_handler(commands=['factorial'])
+def factorial_text(message):
+    try:
+        # Извлекаем аргументы после команды /factorial (если они есть)
+        text_to_factorial = message.text.split(' ', 1)[1]
+
+        number = int(text_to_factorial)
+
+        if number<1:
+            raise Exception
+
+        result = 1
+        for i in range(2, number + 1):  # Итерация от 2 до n включительно
+            result *= i  # Умножение result на текущее значение i
+
+        # Отправляем результат обратно пользователю
+        bot.reply_to(message, result)
+    except IndexError:
+        # Если аргументов нет, отправляем сообщение об ошибке
+        bot.reply_to(message, "Пожалуйста, напишите число после команды /factorial.")
+    except Exception:
+        # Если аргументов нет, отправляем сообщение об ошибке
+        bot.reply_to(message, "Что-то пошло не так...")
 
 # Запускаем бота, чтобы он постоянно ожидал входящие сообщения
 bot.polling(none_stop=True)
