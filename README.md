@@ -52,3 +52,7 @@
    secret_token = os.getenv('SECRET_TOKEN')
    
    Теперь можно использовать secret_token в вашем коде
+
+### Подключение openai:
+
+1. pip install openai
